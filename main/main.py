@@ -11,8 +11,8 @@ app = FastAPI(lifespan=lifespan)
 async def add_video_to_index(request: Video, clip: Clip, chroma: Chroma) -> Video:
     """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
-    if request.text is not None:
-        chroma.add_text_search_suggestion(suggestion_query=request.text)
+    if request.description is not None:
+        chroma.add_text_search_suggestion(suggestion_query=request.description)
     chroma.add_feature(feature=feature)
     return request.model_dump(mode="dict")
 
@@ -26,21 +26,21 @@ async def search_for_related_videos(
         params: Text = Depends()
 ) -> dict[str, list[str]]:
     """Ищет наиболее релевантные видео под запрос"""
-    spelled_search = speller(params.search)
+    spelled_search = speller(params.text)
     translated_search = translator(spelled_search)
     search_vector = await clip.get_text_embedding(
         Video(
-            text=translated_search
+            description=translated_search
         )
     )
-    return {"results": chroma.find_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
+    return {"results": chroma.search_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
 
 
 @app.get("/suggest")
 @cache(expire=Settings.cache_lifetime)
 async def suggest_search_prompt(
-        suggest_request: SuggestRequest,
         chroma: Chroma,
+        params: SuggestRequest = Depends(),
 ) -> dict[str, list[str]]:
     """Предлагает подсказки по текстовому запросу"""
-    return {"results": chroma.get_text_search_suggestions(search_query=suggest_request.search_prompt)}
+    return {"results": chroma.get_text_search_suggestions(search_query=params.text)}

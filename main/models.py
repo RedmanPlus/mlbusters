@@ -14,7 +14,7 @@ class Text(BaseModel):
 
 class SuggestRequest(BaseModel):
     """Represents a text query to suggest related completions"""
-    search_prompt: str
+    text: str
 
 class Feature(BaseModel):
     """Represents an Embedding of a video"""
