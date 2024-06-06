@@ -24,6 +24,7 @@ class FeatureStorage:
         self._collection = getattr(self._db, collection_name)
 
     def deinit(self) -> None:
+        #TODO: Почитать про деинициализацию соединения с монгой
         ...
 
     def add_features(self, features: list[Feature]) -> None:

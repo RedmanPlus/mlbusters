@@ -28,6 +28,7 @@ async def encode(request: EncodeRequest, processor: Processor, clip_model: Model
         raise HTTPException(status_code=400, detail="Please provide either texts or video URLs, not both.")
 
     if texts:
+        #TODO: подумать как сохранять текст
         inputs = processor(text=texts, return_tensors="pt", padding=True)
         with torch.no_grad():
             features = clip_model.get_text_features(**inputs)
