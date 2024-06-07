@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -39,3 +38,22 @@ class FeatureStorage:
             )
             for data in self._collection.find({})
         ]
+
+    def get_relevant_features(self, feature_vector: list[float], top_k: int = 5) -> list[Feature]:
+        pipeline = [
+            {
+                "$search": {
+                    "knnBeta": {
+                        "vector": feature_vector,
+                        "path": "features",
+                        "k": top_k
+                    }
+                }
+            },
+            {
+                "$limit": top_k
+            }
+        ]
+
+        results = self._collection.aggregate(pipeline)
+        return [Feature(**result) for result in results]
