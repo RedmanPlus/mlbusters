@@ -19,7 +19,8 @@ def create_thumbnails_for_video_message(
         frame_change_threshold: float = 7.5,
         num_of_thumbnails: int = 10
     ) -> list[VideoFrame]:
-    frames = []
+
+    frames: list[VideoFrame] = []
     video_data = BytesIO(requests.get(message).content)
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
         tmp_file.write(video_data.getvalue())
@@ -41,6 +42,14 @@ def create_thumbnails_for_video_message(
             frames.append(frame)
         os.remove(output_path)
     os.unlink(video_path)
+    
+    # Sometimes threshold is too high to find at least 1 key frame.
+    if not frames and frame_change_threshold > 2.6:
+        return create_thumbnails_for_video_message(
+            message=message,
+            frame_change_threshold=frame_change_threshold - 2.5,
+            num_of_thumbnails=num_of_thumbnails
+        )
     return frames
 
 def save_frame(video_path: str, timecode, output_path: str):

@@ -2,7 +2,6 @@ import torch
 import numpy as np
 import faiss
 
-# Это всё внутренние зависимости, нужно будет переписывать код без них
 from deps import Model, Processor, Storage
 from storage import Feature
 
