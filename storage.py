@@ -31,3 +31,12 @@ class FeatureStorage:
         self._collection.insert_many(
             [feature.model_dump(mode="json") for feature in features]
         )
+
+    def get_all_features(self) -> list[Feature]:
+        return [
+            Feature(
+                url=data["url"],
+                features=data["features"],
+            )
+            for data in self._collection.find({})
+        ]

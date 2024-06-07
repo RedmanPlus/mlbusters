@@ -5,12 +5,12 @@ import uvicorn
 from PIL import Image
 from pydantic import BaseModel
 
-from deps import Model, Processor, Storage
+from deps import Faiss, Model, Processor, Storage, lifespan
 from keymap import create_thumbnails_for_video_message
 from storage import Feature
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
     texts: list[str] | None = None
@@ -45,9 +45,14 @@ async def encode(request: EncodeRequest, processor: Processor, clip_model: Model
     return {"status": "ok"}
 
 
+class SearchRequest(BaseModel):
+    search: str
+    return_amount: int = 5
+
+
 @app.post("/find")
-async def find_similar():
-    ...
+async def find_similar(request: SearchRequest, faiss: Faiss):
+    return faiss(search_request=request.search, k=request.return_amount)
 
 
 def process_video(video_url: str, processor: Processor, clip_model: Model) -> Feature:
