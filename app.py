@@ -32,6 +32,11 @@ async def encode(request: EncodeRequest, processor: Processor, clip_model: Model
         inputs = processor(text=texts, return_tensors="pt", padding=True)
         with torch.no_grad():
             features = clip_model.get_text_features(**inputs)
+            text_features = features.tolist()
+
+        for i, text in enumerate(texts):
+            storage.add_features([Feature(url=text, features=text_features[i])])
+
 
     if videos:
         video_data = []
