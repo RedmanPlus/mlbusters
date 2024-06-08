@@ -1,11 +1,12 @@
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from typing import Annotated
 from fastapi import Depends, FastAPI, Request
 from transformers import CLIPModel, CLIPProcessor
 
-from similarity import FaissService
-from storage import FeatureStorage
-
+from processors.comparing import FaissService
+from db import FeatureStorage
+from dotenv import load_dotenv
+load_dotenv()
 
 def get_clip_processor() -> CLIPProcessor:
     ...
@@ -18,7 +19,7 @@ def get_clip_model() -> CLIPModel:
 def get_feature_storage() -> FeatureStorage:
     return FeatureStorage(conn_addr="", db_name="features", collection_name="features")
 
-@contextmanager
+@asynccontextmanager
 def lifespan(app: FastAPI):
     app.state.db = get_feature_storage()
     app.state.processor = get_clip_processor()

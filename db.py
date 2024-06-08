@@ -1,14 +1,9 @@
 from dataclasses import dataclass
-
-from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
 
-
-class Feature(BaseModel):
-    url: str
-    features: list[float]
+from models import Feature
 
 
 @dataclass
@@ -24,8 +19,7 @@ class FeatureStorage:
         self._collection = getattr(self._db, collection_name)
 
     def deinit(self) -> None:
-        #TODO: Почитать про деинициализацию соединения с монгой
-        ...
+        self._client.close()
 
     def add_features(self, features: list[Feature]) -> None:
         self._collection.insert_many(
@@ -40,3 +34,22 @@ class FeatureStorage:
             )
             for data in self._collection.find({})
         ]
+
+    def get_relevant_features(self, feature_vector: list[float], top_k: int = 5) -> list[Feature]:
+        pipeline = [
+            {
+                "$search": {
+                    "knnBeta": {
+                        "vector": feature_vector,
+                        "path": "features",
+                        "k": top_k
+                    }
+                }
+            },
+            {
+                "$limit": top_k
+            }
+        ]
+
+        results = self._collection.aggregate(pipeline)
+        return [Feature(**result) for result in results]
