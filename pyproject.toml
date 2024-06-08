@@ -19,6 +19,7 @@ faiss-cpu = "^1.8.0"
 pymongo = "^4.7.3"
 python-dotenv = "^1.0.1"
 aiohttp = "^3.9.5"
+opencv-python = "^4.10.0.82"
 
 
 [build-system]

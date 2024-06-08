@@ -1,30 +1,25 @@
-import torch
 import numpy as np
 import faiss
 
-from deps import Model, Processor, Storage
 from storage import Feature
+from models import EncodeRequest
 
 
 class FaissService:
 
-    def __init__(self, processor: Processor, clip_model: Model, storage: Storage) -> list[str]:
+    def __init__(self, clip: 'Clip', storage: 'Storage') -> list[str]:
         # Message IDs are UUIDs > incompatible with FAISS > make mapping for {FAISS index ID: Message}
         self.index_ids_to_messages = {}
-        self.processor = processor
-        self.clip_model = clip_model
+        self.clip = clip
 
         all_features = storage.get_all_features()
         self.index = self.setup_medias_index(all_features)
 
-    def __call__(self, search_request: str, k=5):
-        """ Find k most similar medias for a given message using FAISS. """
+    async def get_similar_video_urls(self, search_request: str, k=5):
+        """ Find k most similar video urls for a given search request using FAISS. """
         try:
-            inputs = self.processor(text=search_request, return_tensors="pt", padding=True)
-            with torch.no_grad():
-                features = self.clip_model.get_text_features(**inputs)
-
-            input_vector = features.numpy().astype('float32').reshape(1, -1)
+            features = await self.clip.get_text_embedding(EncodeRequest(text=search_request))
+            input_vector = features.features.numpy().astype('float32').reshape(1, -1)
             _, indices = self.index.search(input_vector, k)
             vector_ids = indices.flatten().tolist()
             urls = [
@@ -46,7 +41,7 @@ class FaissService:
         vectors = []
         ids = []
         for i, feature in enumerate(video_features):
-            vector = np.frombuffer(feature.features)
+            vector = np.array(feature.features, dtype='float32')
             if vector.size != d:
                 vector = np.resize(vector, (d,))
             vectors.append(vector)

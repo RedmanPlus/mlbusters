@@ -3,12 +3,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
-
-
-class Feature(BaseModel):
-    url: str
-    features: list[float]
-
+from models import Feature
 
 @dataclass
 class FeatureStorage:
