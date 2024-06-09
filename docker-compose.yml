@@ -1,0 +1,26 @@
+version: "3.10"
+
+services:
+  mongodb:
+    image: mongodb/mongodb-atlas-local
+    environment:
+      - MONGODB_INITDB_ROOT_USERNAME=user
+      - MONGODB_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - 27019:27017
+    volumes:
+      - data:/data/db
+
+  fastapi_app:
+    build:
+      context: ./
+    command: python app.py
+    depends_on:
+      - mongodb
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  data:

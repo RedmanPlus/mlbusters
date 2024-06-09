@@ -2,9 +2,9 @@ from fastapi import FastAPI
 
 import uvicorn
 
-from deps import Faiss, Model, Processor, Storage, lifespan
+from deps import Model, Processor, Storage, lifespan
 from models import EncodeRequest, SearchRequest
-from processors.encoding import process_video
+from processors.encoding import process_text, process_video
 
 
 app = FastAPI(lifespan=lifespan)
@@ -31,8 +31,22 @@ async def encode(
 
 
 @app.post("/find")
-async def find_similar(request: SearchRequest, faiss: Faiss):
-    return faiss(search_request=request.search, k=request.return_amount)
+async def find_similar(
+        request: SearchRequest,
+        processor: Processor,
+        clip_model: Model,
+        store: Storage
+) -> dict[str, list[str]]:
+    search_vector = process_text(
+        request.search,
+        processor=processor,
+        clip_model=clip_model
+    )
+    results = store.get_relevant_features(
+        feature_vector=search_vector[0],
+        top_k=request.return_amount
+    )
+    return {"results": [result.url for result in results]}
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from io import BytesIO
 from pydantic import BaseModel
 
@@ -16,11 +17,13 @@ class SearchRequest(BaseModel):
     return_amount: int = 5
 
 
-class Feature(BaseModel):
+@dataclass
+class Feature:
     url: str
     features: list[float]
 
 
-class VideoFrame(BaseModel):
+@dataclass
+class VideoFrame:
     video_url: str
     file: BytesIO
