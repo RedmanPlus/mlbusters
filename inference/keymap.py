@@ -3,9 +3,6 @@ import subprocess
 import tempfile
 from io import BytesIO
 from dataclasses import dataclass
-
-from pydantic import BaseModel
-
 import requests
 from scenedetect import detect, ContentDetector
 
