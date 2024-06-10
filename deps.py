@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Request
 
 from similarity import FaissService
-from storage import FeatureStorage
+from db import FeatureStorage
 from clip import CLIPService
 from dotenv import load_dotenv
 load_dotenv()
