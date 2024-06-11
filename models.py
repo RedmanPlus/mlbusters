@@ -7,7 +7,7 @@ class EncodeRequest(BaseModel):
 
 class SearchRequest(BaseModel):
     search: str
-    return_amount: int = 5
+    return_amount: int = 20
 
 class Feature(BaseModel):
     url: Optional[str] = None
