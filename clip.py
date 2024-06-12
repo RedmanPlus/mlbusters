@@ -1,6 +1,5 @@
 import aiohttp
 from models import EncodeRequest, Feature
-from googletrans import Translator
 
 class CLIPService:
     def __init__(self, url: str) -> None:
@@ -18,9 +17,7 @@ class CLIPService:
     async def get_text_embedding(
             self, 
             request: EncodeRequest, 
-            translate: bool = True) -> Feature:
-        if translate:
-            request.text = Translator().translate(text=request.text).text
+    ) -> Feature:
         async with aiohttp.ClientSession().post(
             self.clip_url, 
             json=request.model_dump(mode="json")
