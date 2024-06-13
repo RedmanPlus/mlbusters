@@ -9,3 +9,4 @@ aiohttp==3.9.5
 opencv-python==4.10.0.82
 chromadb==0.5.0
 environs==11.0.0
+sentencepiece==0.2.0
