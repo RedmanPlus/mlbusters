@@ -22,7 +22,7 @@ services:
     depends_on:
       - db
     env_file:
-      inference/.env.dist
+      - inference/.env.dist
     networks:
       - inner
 

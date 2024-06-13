@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 
-from deps import T5, Clip, Chroma, lifespan
+from deps import Opus, Clip, Chroma, lifespan
 from models import EncodeRequest, SearchRequest
 
 app = FastAPI(lifespan=lifespan)
@@ -15,7 +15,7 @@ async def encode(request: EncodeRequest, clip: Clip, chroma: Chroma):
 async def find_similar(
         clip: Clip,
         chroma: Chroma,
-        translator: T5,
+        translator: Opus,
         params: SearchRequest = Depends()
 ) -> dict[str, list[str]]:
     search_vector = await clip.get_text_embedding(
