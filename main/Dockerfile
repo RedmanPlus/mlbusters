@@ -20,6 +20,9 @@ RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release \
     cd sqlite/ && \
     ./configure && \
     make sqlite3.c && \
+    apt-get purge sqlite3 && \
+    make install && \
+    export PATH="/usr/local/bin:$PATH"
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 RUN python -c "import sqlite3; import time; print(sqlite3.sqlite_version); time.sleep(10)"
