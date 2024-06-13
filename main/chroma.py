@@ -1,10 +1,15 @@
 import chromadb
+from chromadb.server import Settings as ChromaSettings
 from models import Feature
 from settings import Settings
 
 class ChromaStorage:
     def __init__(self, collection_name: str = 'features') -> None:
-        self.client = chromadb.HttpClient(port=Settings.db_port)
+        self.client = chromadb.HttpClient(
+            host=Settings.db_host,
+            port=Settings.db_port,
+            settings=ChromaSettings(allow_reset=True, anonymized_telemetry=False)
+        )
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
             metadata={"hnsw:space": "cosine"}
