@@ -14,17 +14,7 @@ RUN apt-get update && \
     locale-gen
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
-
-# setting up sqlite for chroma connection
-RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release \
-    -O sqlite.tar.gz && \
-    tar xzf sqlite.tar.gz && \
-    cd sqlite/ && \
-    ./configure && \
-    make sqlite3.c &&\
-    cp /app/sqlite/sqlite3.[ch] pysqlite3/ && \
-    cd pysqlite3 && \
-    python setup.py build_static build
+RUN python -c "import sqlite3; print(sqlite3.sqlite_version)"
 
 COPY ./ /app/
 
