@@ -11,7 +11,7 @@ COPY requirements.txt /app/
 RUN apt-get update && \
     apt-get install -y locales && \
     apt-get install -y python-dev-is-python3 libldap2-dev libsasl2-dev libssl-dev librdkafka-dev netcat-openbsd && \
-    sudo apt-get install -y sqlite3 libsqlite3-dev && \
+    apt-get install -y sqlite3 libsqlite3-dev && \
     echo ru_RU.UTF-8 UTF-8 >> /etc/locale.gen && \
     locale-gen
 
