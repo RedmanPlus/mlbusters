@@ -17,5 +17,5 @@ RUN apt-get update && \
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 COPY ./ /app/
 
-EXPOSE 8000
-CMD uvicorn clip:app --port 8000
+EXPOSE 8040
+CMD uvicorn clip:app --port 8040
