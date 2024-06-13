@@ -7,7 +7,6 @@ services:
     volumes:
       - chroma-data:/chroma/chroma
     restart: unless-stopped
-    command: chroma run --host localhost --port 8080 --path ./my_chroma_data
     networks:
       - inner
   
@@ -16,7 +15,7 @@ services:
       context: ./inference
       dockerfile: Dockerfile
     container_name: inference
-    command: uvicorn clip:app --port 8000
+    command: uvicorn clip:app --port 8040
     restart: unless-stopped
     depends_on:
       - db
@@ -30,7 +29,7 @@ services:
       context: ./main
       dockerfile: Dockerfile
     container_name: main_gateway
-    command: uvicorn main:app --port 8000 --workers 4
+    command: uvicorn main:app --port 8080 --workers 4
     restart: unless-stopped
     depends_on:
       - db
@@ -38,7 +37,7 @@ services:
     env_file:
       - main/.env.dist
     ports:
-      - "8000:8000"
+      - "8080:8000"
     networks:
       - inner
 

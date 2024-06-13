@@ -4,10 +4,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
-from deps import Model, Processor
+from deps import Model, Processor, lifespan
 from keymap import create_thumbnails_for_video_message
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
     text: Optional[str] = None
