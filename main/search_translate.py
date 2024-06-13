@@ -14,9 +14,15 @@ class T5TranslatorModel:
 
 
     def __post_init__(self):
-        self._model = T5ForConditionalGeneration.from_pretrained(self._model_name)
+        self._model = T5ForConditionalGeneration.from_pretrained(
+            self._model_name,
+            cache_dir="./model_cache"
+        )
         self._model.to(self._device)
-        self._tokenizer = T5Tokenizer.from_pretrained(self._model_name)
+        self._tokenizer = T5Tokenizer.from_pretrained(
+            self._model_name,
+            cache_dir="./model_cache"
+        )
 
     def __call__(self, search_query: str) -> str:
         input_ids = self._tokenizer(search_query, return_tensors="pt")

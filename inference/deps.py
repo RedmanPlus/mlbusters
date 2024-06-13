@@ -9,8 +9,14 @@ from settings import Settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.clip_model = CLIPModel.from_pretrained(Settings.clip_model)
-    app.state.processor = CLIPProcessor.from_pretrained(Settings.clip_model)
+    app.state.clip_model = CLIPModel.from_pretrained(
+        Settings.clip_model,
+        cache_dir="./model_cache"
+    )
+    app.state.processor = CLIPProcessor.from_pretrained(
+        Settings.clip_model,
+        cache_dir="./model_cache"
+    )
     yield
 
 
