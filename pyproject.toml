@@ -24,6 +24,8 @@ chromadb = "^0.5.0"
 googletrans-py = "^4.0.0"
 imageio = "^2.34.1"
 environs = "^11.0.0"
+fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
+aiomcache = "^0.8.2"
 
 
 [build-system]

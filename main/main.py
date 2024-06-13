@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Depends
+from fastapi_cache.decorator import cache
 
 from deps import Opus, Clip, Chroma, lifespan
+from main.settings import Settings
 from models import EncodeRequest, SearchRequest
 
 app = FastAPI(lifespan=lifespan)
@@ -12,6 +14,7 @@ async def encode(request: EncodeRequest, clip: Clip, chroma: Chroma):
     return {"status": "ok", "features": feature.features}
 
 @app.get("/find")
+@cache(expire=Settings.cache_lifetime)
 async def find_similar(
         clip: Clip,
         chroma: Chroma,

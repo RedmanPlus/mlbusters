@@ -1,8 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
+
+from aiomcache import Client
 from fastapi import Depends, FastAPI, Request
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.memcached import MemcachedBackend
 from chroma import ChromaStorage
 from clip import CLIPService
+
 from search_translate import OpusTranslatorModel
 from settings import Settings
 
@@ -22,6 +27,8 @@ def get_opus_translator() -> OpusTranslatorModel:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    memcached = Client(host=Settings.memcached_host)
+    FastAPICache.init(backend=MemcachedBackend(memcached), prefix="search-cache")
     app.state.clip = get_clip_service()
     app.state.chroma = get_chroma_storage()
     app.state.opus = get_opus_translator()

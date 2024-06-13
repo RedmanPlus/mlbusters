@@ -9,7 +9,14 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
-  
+ 
+  cache:
+    container_name: request_cache
+    image: memcached:latest
+    ports:
+      - "11211:11211"
+    restart: always
+
   inference:
     build:
       context: ./inference
@@ -19,8 +26,6 @@ services:
     restart: unless-stopped
     volumes:
       - inference-model-data:/app/model_data
-    depends_on:
-      - db
     env_file:
       - inference/.env.dist
     ports:
@@ -38,6 +43,7 @@ services:
     depends_on:
       - db
       - inference
+      - cache
     env_file:
       - main/.env.dist
     ports:
