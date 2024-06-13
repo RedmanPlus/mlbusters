@@ -31,7 +31,7 @@ services:
       context: ./main
       dockerfile: Dockerfile
     container_name: main_gateway
-    command: uvicorn main:app --port 8080 --workers 4
+    command: uvicorn main:app --port 8080
     restart: unless-stopped
     volumes:
       - main-model-data:/app/model_data
