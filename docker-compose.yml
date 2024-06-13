@@ -22,7 +22,7 @@ services:
       context: ./inference
       dockerfile: Dockerfile
     container_name: inference
-    command: uvicorn clip:app --port 8040
+    command: uvicorn clip:app --host "0.0.0.0" --port 8040
     restart: unless-stopped
     volumes:
       - inference-model-data:/app/model_data
@@ -36,7 +36,7 @@ services:
       context: ./main
       dockerfile: Dockerfile
     container_name: main_gateway
-    command: uvicorn main:app --port 8080
+    command: uvicorn main:app --host "0.0.0.0" --port 8080
     restart: unless-stopped
     volumes:
       - main-model-data:/app/model_data
