@@ -14,7 +14,7 @@ RUN apt-get update && \
     locale-gen
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
-RUN python -c "import sqlite3; print(sqlite3.sqlite_version)"
+RUN python -c "import sqlite3; import time; print(sqlite3.sqlite_version); time.sleep(10)"
 
 COPY ./ /app/
 
