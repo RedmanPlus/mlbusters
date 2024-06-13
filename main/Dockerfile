@@ -22,14 +22,11 @@ RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release \
     make sqlite3.c && \
     apt-get purge sqlite3 && \
     make install && \
-    export PATH="/usr/local/bin:$PATH"
+    export PATH="/usr/local/bin:$PATH" && \
+    cd .libs && \
+    cp libsqlite3.so.0 /usr/lib/x86_64-linux-gnu/libsqlite3.so.0
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
-    
-RUN echo "sqlite version: $(sqlite3 --version)" && \
-    sleep 10
-    
-RUN python -c "import sqlite3; import time; print(sqlite3.sqlite_version); time.sleep(10)"
 
 COPY ./ /app/
 
