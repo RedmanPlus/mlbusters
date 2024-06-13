@@ -7,8 +7,8 @@ services:
     volumes:
       - chroma-data:/chroma/chroma
     restart: unless-stopped
-    networks:
-      - inner
+    ports:
+      - "8000:8000"
   
   inference:
     build:
@@ -23,8 +23,8 @@ services:
       - db
     env_file:
       - inference/.env.dist
-    networks:
-      - inner
+    ports:
+      - "8040:8040"
 
   main:
     build:
@@ -42,8 +42,6 @@ services:
       - main/.env.dist
     ports:
       - "8080:8080"
-    networks:
-      - inner
 
 volumes:
   chroma-data:
@@ -52,7 +50,3 @@ volumes:
     driver: local
   main-model-data:
     driver: local
-
-networks:
-  inner:
-    driver: bridge
