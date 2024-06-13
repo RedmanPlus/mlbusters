@@ -15,7 +15,7 @@ services:
       timeout: 10s
       retries: 3
   
-  inferenct:
+  inference:
     build:
       context: ./inference
       dockerfile: Dockerfile
@@ -30,15 +30,15 @@ services:
 
   main:
     build:
-      context: .
+      context: ./main
       dockerfile: Dockerfile
     container_name: main_gateway
     command: uvicorn main:app --port 8000 --workers 4
     depends_on:
       - db
-      - infetence
+      - inference
     env_file:
-      - .env.dist
+      - main/.env.dist
     ports:
       - "8000:8000"
 
