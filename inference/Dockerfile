@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
 RUN apt-get update && \
     apt-get install -y locales && \
-    apt-get install -y python-dev-is-python3 libldap2-dev libsasl2-dev libssl-dev librdkafka-dev netcat-openbsd && \
     echo ru_RU.UTF-8 UTF-8 >> /etc/locale.gen && \
     locale-gen 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
