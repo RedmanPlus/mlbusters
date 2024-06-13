@@ -41,7 +41,7 @@ services:
     env_file:
       - main/.env.dist
     ports:
-      - "8080:8000"
+      - "8080:8080"
     networks:
       - inner
 
