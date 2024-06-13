@@ -26,7 +26,7 @@ RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release \
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
     
-RUN echo "sqlite version: $(sqlite --version)" && \
+RUN echo "sqlite version: $(sqlite3 --version)" && \
     sleep 10
     
 RUN python -c "import sqlite3; import time; print(sqlite3.sqlite_version); time.sleep(10)"
