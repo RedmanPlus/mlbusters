@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi_cache.decorator import cache
 
 from deps import Opus, Clip, Chroma, lifespan
-from .settings import Settings
+from settings import Settings
 from models import EncodeRequest, SearchRequest
 
 app = FastAPI(lifespan=lifespan)
