@@ -39,4 +39,4 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
         features = outputs.video_embeds
     features /= features.norm(dim=-1, keepdim=True)
 
-    return {"features": features.tolist()}
+    return {"features": features.tolist()[0]}
