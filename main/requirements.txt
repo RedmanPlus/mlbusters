@@ -1,0 +1,14 @@
+fastapi==0.111.0
+langchain==0.2.2
+pydantic==2.7.3
+peft==0.11.1
+torch==2.3.1 --index-url https://download.pytorch.org/whl/cpu
+transformers==4.41.2
+uvicorn==0.30.1
+aiohttp==3.9.5
+opencv-python==4.10.0.82
+chromadb==0.5.0
+environs==11.0.0
+sentencepiece==0.2.0
+fastapi-cache2==0.2.1
+aiomcache==0.8.2

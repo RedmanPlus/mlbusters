@@ -3,7 +3,6 @@ name = "mlbusters"
 version = "0.1.0"
 description = ""
 authors = ["Antony Redman <RumataYounger@gmail.com>"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -18,6 +17,15 @@ pillow = "^10.3.0"
 scenedetect = "^0.6.3"
 faiss-cpu = "^1.8.0"
 pymongo = "^4.7.3"
+python-dotenv = "^1.0.1"
+aiohttp = "^3.9.5"
+opencv-python = "^4.10.0.82"
+chromadb = "^0.5.0"
+googletrans-py = "^4.0.0"
+imageio = "^2.34.1"
+environs = "^11.0.0"
+fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
+aiomcache = "^0.8.2"
 
 
 [build-system]
