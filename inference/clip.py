@@ -12,7 +12,7 @@ from keymap import read_video_pyav, sample_frame_indices
 app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
-    text: Optional[str] = None
+    text: Optional[str] = ''
     video_url: Optional[str] = None
 
 @app.get("/")
@@ -22,9 +22,7 @@ async def root():
 
 @app.post("/encode")
 async def encode(request: EncodeRequest, processor: Processor, model: Model):
-    text = request.text
-    video_url = request.video_url
-    video_data = BytesIO(requests.get(video_url).content)
+    video_data = BytesIO(requests.get(request.video_url).content)
     container = av.open(video_data)
     indices = sample_frame_indices(clip_len=8, frame_sample_rate=1, seg_len=container.streams.video[0].frames)
     video = read_video_pyav(container, indices)
