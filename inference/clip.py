@@ -34,17 +34,18 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             return_tensors="pt",
             padding=True,
         )
+        with torch.no_grad():
+            outputs = model(**inputs)
     elif request.text:
         inputs = processor(
             text=[request.text],
-            # videos=[],
             return_tensors="pt",
             padding=True,
         )
-    with torch.no_grad():
-        outputs = model(**inputs)
+        with torch.no_grad():
+            outputs = model.get_text_features(**inputs)
     
-    features = outputs.video_embeds if request.video_url else outputs.text_embeds
+    features = outputs.video_embeds if request.video_url else outputs
     features /= features.norm(dim=-1, keepdim=True)
 
     return {"features": features.tolist()[0]}
