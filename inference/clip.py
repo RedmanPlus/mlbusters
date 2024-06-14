@@ -29,7 +29,7 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
         indices = sample_frame_indices(clip_len=8, frame_sample_rate=1, seg_len=container.streams.video[0].frames)
         video = read_video_pyav(container, indices)
         inputs = processor(
-            text=[request.text or ''],
+            text=[request.text or ' '],
             videos=list(video),
             return_tensors="pt",
             padding=True,
@@ -37,12 +37,14 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
     elif request.text:
         inputs = processor(
             text=[request.text],
+            videos=[],
             return_tensors="pt",
             padding=True,
         )
     with torch.no_grad():
         outputs = model(**inputs)
-        features = outputs.video_embeds
+    
+    features = outputs.video_embeds if request.video_url else outputs.text_embeds
     features /= features.norm(dim=-1, keepdim=True)
 
     return {"features": features.tolist()[0]}
