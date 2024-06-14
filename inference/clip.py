@@ -37,7 +37,7 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
     elif request.text:
         inputs = processor(
             text=[request.text],
-            videos=[],
+            # videos=[],
             return_tensors="pt",
             padding=True,
         )
