@@ -12,7 +12,7 @@ from keymap import read_video_pyav, sample_frame_indices
 app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
-    text: Optional[str] = ''
+    text: str = ''
     video_url: Optional[str] = None
 
 @app.get("/")
