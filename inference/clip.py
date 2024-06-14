@@ -22,18 +22,24 @@ async def root():
 
 @app.post("/encode")
 async def encode(request: EncodeRequest, processor: Processor, model: Model):
-    text = request.text
-    video_url = request.video_url
-    video_data = BytesIO(requests.get(video_url).content)
-    container = av.open(video_data)
-    indices = sample_frame_indices(clip_len=8, frame_sample_rate=1, seg_len=container.streams.video[0].frames)
-    video = read_video_pyav(container, indices)
-    inputs = processor(
-        text=[request.text or 'video'],
-        videos=list(video),
-        return_tensors="pt",
-        padding=True,
-    )
+    if request.video_url:
+        video_url = request.video_url
+        video_data = BytesIO(requests.get(video_url).content)
+        container = av.open(video_data)
+        indices = sample_frame_indices(clip_len=8, frame_sample_rate=1, seg_len=container.streams.video[0].frames)
+        video = read_video_pyav(container, indices)
+        inputs = processor(
+            text=[request.text or ''],
+            videos=list(video),
+            return_tensors="pt",
+            padding=True,
+        )
+    elif request.text:
+        inputs = processor(
+            text=[request.text],
+            return_tensors="pt",
+            padding=True,
+        )
     with torch.no_grad():
         outputs = model(**inputs)
         features = outputs.video_embeds
