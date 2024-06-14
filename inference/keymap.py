@@ -1,55 +1,24 @@
-import os
-import subprocess
-import tempfile
 from io import BytesIO
-from dataclasses import dataclass
-import requests
-from scenedetect import detect, ContentDetector
+import numpy as np
+np.random.seed(0)
 
-
-@dataclass
-class VideoFrame:
-    video_url: str
-    file: BytesIO
-
-
-def create_thumbnails_for_video_message(
-        video_url: str, 
-        frame_change_threshold: float = 7.5,
-        num_of_thumbnails: int = 10
-    ) -> list[VideoFrame]:
-
-    frames: list[VideoFrame] = []
-    video_data = BytesIO(requests.get(video_url).content)
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
-        tmp_file.write(video_data.getvalue())
-        video_path = tmp_file.name
-
-    # Setup Scene Detection
-    scenes = detect(video_path, ContentDetector(threshold=frame_change_threshold))
-
-    # Gradually reduce number of key frames with a sliding window
-    while len(scenes) > num_of_thumbnails:
-        scenes.pop()
-        scenes.pop(0)
-    for i, scene in enumerate(scenes):
-        scene_start, _ = scene
-        output_path = f'key_frame_{i}.jpg'
-        save_frame(video_path, scene_start.get_timecode(), output_path)
-        with open(output_path, 'rb') as frame_data:
-            frame: VideoFrame = VideoFrame(video_url=video_url, file=BytesIO(frame_data.read()))
+def read_video_pyav(container: BytesIO, indices: np.array) -> np.array:
+    frames = []
+    container.seek(0)
+    start_index = indices[0]
+    end_index = indices[-1]
+    for i, frame in enumerate(container.decode(video=0)):
+        if i > end_index:
+            break
+        if i >= start_index and i in indices:
             frames.append(frame)
-        os.remove(output_path)
-    os.unlink(video_path)
-    
-    # Sometimes threshold is too high to find at least 1 key frame.
-    if not frames and frame_change_threshold > 2.6:
-        return create_thumbnails_for_video_message(
-            video_url=video_url,
-            frame_change_threshold=frame_change_threshold - 2.5,
-            num_of_thumbnails=num_of_thumbnails
-        )
-    return frames
+    return np.stack([x.to_ndarray(format="rgb24") for x in frames])
 
-def save_frame(video_path: str, timecode, output_path: str):
-    subprocess.call(['ffmpeg', '-y', '-i', video_path, '-ss', str(timecode), '-vframes', '1', output_path])
+
+def sample_frame_indices(clip_len, frame_sample_rate, seg_len):
+    converted_len = int(clip_len * frame_sample_rate)
+    end_idx = np.random.randint(converted_len, seg_len)
+    start_idx = end_idx - converted_len
+    indices = np.linspace(start_idx, end_idx, num=clip_len)
+    indices = np.clip(indices, start_idx, end_idx - 1).astype(np.int64)
+    return indices

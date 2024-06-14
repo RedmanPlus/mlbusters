@@ -1,11 +1,12 @@
 import torch
+import requests
+from io import BytesIO
 from typing import Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from PIL import Image
 from pydantic import BaseModel
 from deps import Model, Processor, lifespan
-from keymap import create_thumbnails_for_video_message
+from keymap import read_video_pyav, sample_frame_indices
 
 app = FastAPI(lifespan=lifespan)
 
@@ -22,37 +23,19 @@ async def root():
 async def encode(request: EncodeRequest, processor: Processor, model: Model):
     text = request.text
     video_url = request.video_url
-
-    features = None
-    features = None
-
-    if all((text, video_url)):
-        raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, not both.") 
-    if not any((text, video_url)):
-        raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, or both.")
-
-    if text:
-        inputs = processor(text=[text], return_tensors="pt", padding=True)
-        with torch.no_grad():
-            features = model.get_text_features(**inputs)
-            features /= features.norm(dim=-1, keepdim=True)
-
-    if video_url:
-        images = create_thumbnails_for_video_message(video_url)
-
-        image_inputs = []
-        for image in images:
-            image = Image.open(image.file)
-            image_input = processor(images=image, return_tensors="pt")
-            image_inputs.append(image_input)
-
-        with torch.no_grad():
-            image_features = model.get_image_features(**image_inputs[0])
-            for image_input in image_inputs[1:]:
-                image_feature = model.get_image_features(**image_input)
-                image_features = torch.cat((image_features, image_feature), dim=0)
-
-            features = torch.mean(image_features, dim=0)
-            features /= features.norm(dim=-1, keepdim=True)
+    video_data = BytesIO(requests.get(video_url).content)
+    container = av.open(video_data)
+    indices = sample_frame_indices(clip_len=8, frame_sample_rate=1, seg_len=container.streams.video[0].frames)
+    video = read_video_pyav(container, indices)
+    inputs = processor(
+        text=[request.text],
+        videos=list(video),
+        return_tensors="pt",
+        padding=True,
+    )
+    with torch.no_grad():
+        outputs = model(**inputs)
+        features = outputs.video_embeds
+    features /= features.norm(dim=-1, keepdim=True)
 
     return {"features": features.tolist()}
