@@ -227,6 +227,16 @@ tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "autocorrect"
+version = "2.6.1"
+description = "Spelling Corrector"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "autocorrect-2.6.1.tar.gz", hash = "sha256:2bc68192dc645b44bece2613caac338e93548c3dac9c563095b27224c7fd4391"},
+]
+
+[[package]]
 name = "backoff"
 version = "2.2.1"
 description = "Function decoration for backoff and retry"
@@ -4434,4 +4444,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "cdb85f9207597e72ed5fb602641d8b36b9cd1e64001c3e28feea50d9954b8bf7"
+content-hash = "854913e46a4742275f760698c85f5c0003a5df398805ce81d5a40bb074697baa"
