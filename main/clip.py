@@ -23,4 +23,4 @@ class CLIPService:
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
-        return Feature(features=features['features'][0])
+        return Feature(features=features['features'])
