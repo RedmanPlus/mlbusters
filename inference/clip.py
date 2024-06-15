@@ -42,10 +42,10 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             image_features = torch.mean(torch.stack(image_features_list), dim=0)
             image_features /= image_features.norm(dim=-1, keepdim=True)
             image_features *= video_weight
-    if text_features and image_features:
+    if text and video_url:
         unified_features = torch.cat((text_features, image_features), dim=-1)
         return {"features": unified_features.tolist()}
-    elif text_features:
+    elif text:
         return {"features": text_features.tolist()}
-    elif image_features:
+    elif video_url:
         return {"features": image_features.tolist()}
