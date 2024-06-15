@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
 from deps import Model, Processor, lifespan
-from inference.frame_video import create_thumbnails_for_video
+from frame_video import create_thumbnails_for_video
 
 app = FastAPI(lifespan=lifespan)
 
