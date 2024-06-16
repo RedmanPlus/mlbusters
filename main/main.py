@@ -39,8 +39,8 @@ async def search_for_related_videos(
 @app.get("/suggest")
 @cache(expire=Settings.cache_lifetime)
 async def suggest_search_prompt(
-        request: SuggestRequest,
+        suggest_request: SuggestRequest,
         chroma: Chroma,
 ) -> dict[str, list[str]]:
     """Предлагает подсказки по текстовому запросу"""
-    return {"results": chroma.get_text_search_suggestions(search_query=request.search_prompt)}
+    return {"results": chroma.get_text_search_suggestions(search_query=suggest_request.search_prompt)}
