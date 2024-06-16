@@ -27,6 +27,12 @@ RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release \
 
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 
+RUN wget https://ipfs.io/ipfs/QmbRSZvfJV6zN12zzWhecphcvE9ZBeQdAJGQ9c9ttJXzcg/ru.tar.gz && \
+    tar xzf ru.tar.gz && \
+    ls -al && sleep 5 && \
+    cd /usr/local/lib && ls -al && sleep 5 && \
+    mv ru /usr/local/lib/python3.11/site-packages/autocorrect/data/
+
 COPY ./ /app/
 
 EXPOSE 8080
