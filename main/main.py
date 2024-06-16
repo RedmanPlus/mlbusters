@@ -26,7 +26,7 @@ async def search_for_related_videos(
         params: Text = Depends()
 ) -> dict[str, list[str]]:
     """Ищет наиболее релевантные видео под запрос"""
-    spelled_search = speller(params.search)
+    spelled_search = speller(params.text)
     translated_search = translator(spelled_search)
     search_vector = await clip.get_text_embedding(
         Video(
