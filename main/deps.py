@@ -8,6 +8,7 @@ from fastapi_cache.backends.memcached import MemcachedBackend
 from chroma import ChromaStorage
 from clip import CLIPService
 
+from main.search_correction import SpellCorrection
 from search_translate import OpusTranslatorModel
 from settings import Settings
 
@@ -25,6 +26,10 @@ def get_opus_translator() -> OpusTranslatorModel:
     return OpusTranslatorModel()
 
 
+def get_spell_correction() -> SpellCorrection:
+    return SpellCorrection()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     memcached = Client(host=Settings.memcached_host)
@@ -32,6 +37,7 @@ async def lifespan(app: FastAPI):
     app.state.clip = get_clip_service()
     app.state.chroma = get_chroma_storage()
     app.state.opus = get_opus_translator()
+    app.state.speller = get_spell_correction()
     yield
 
 def _get_clip(request: Request) -> CLIPService:
@@ -43,6 +49,10 @@ def _get_chroma(request: Request) -> ChromaStorage:
 def _get_opus(request: Request) -> OpusTranslatorModel:
     return request.app.state.opus
 
+def _get_spell(request: Request) -> SpellCorrection:
+    return request.app.state.speller
+
 Clip = Annotated[CLIPService, Depends(_get_clip)]
 Chroma = Annotated[ChromaStorage, Depends(_get_chroma)]
 Opus = Annotated[OpusTranslatorModel, Depends(_get_opus)]
+Speller = Annotated[SpellCorrection, Depends(_get_spell)]
