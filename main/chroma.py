@@ -4,7 +4,11 @@ from models import Feature
 from settings import Settings
 
 class ChromaStorage:
-    def __init__(self, collection_name: str = 'features') -> None:
+    def __init__(
+            self,
+            collection_name: str = 'features',
+            desc_collection_name: str = "descriptions",
+    ) -> None:
         self.client = chromadb.HttpClient(
             host=Settings.db_host,
             port=Settings.db_port,
@@ -12,6 +16,10 @@ class ChromaStorage:
         )
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
+            metadata={"hnsw:space": "cosine"}
+        )
+        self.desc_collection = self.client.get_or_create_collection(
+            name=desc_collection_name,
             metadata={"hnsw:space": "cosine"}
         )
 
@@ -27,3 +35,17 @@ class ChromaStorage:
             n_results=top_k
         )
         return results['ids'][0]
+
+    def add_text_search_suggestion(self, suggestion_query: str) -> None:
+        subsearches = suggestion_query.split()
+        self.desc_collection.add(
+            documents=[suggestion_query] + subsearches,
+            ids=[str(hash(suggestion_query))]
+        )
+
+    def get_text_search_suggestions(self, search_query: str, top_k: int = 20) -> list[str]:
+        results = self.desc_collection.query(
+            query_texts=[search_query],
+            n_results=top_k,
+        )
+        return results["documents"][0]

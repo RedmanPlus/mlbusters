@@ -12,6 +12,10 @@ class Text(BaseModel):
     text: str
     return_amount: int = 50
 
+class SuggestRequest(BaseModel):
+    """Represents a text query to suggest related completions"""
+    search_prompt: str
+
 class Feature(BaseModel):
     """Represents an Embedding of a video"""
     link: Optional[str] = None
