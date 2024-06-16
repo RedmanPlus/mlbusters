@@ -8,7 +8,7 @@ from fastapi_cache.backends.memcached import MemcachedBackend
 from chroma import ChromaStorage
 from clip import CLIPService
 
-from main.search_correction import SpellCorrection
+from search_correction import SpellCorrection
 from search_translate import OpusTranslatorModel
 from settings import Settings
 

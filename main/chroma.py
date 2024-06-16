@@ -25,25 +25,25 @@ class ChromaStorage:
 
     def add_feature(self, feature: Feature) -> None:
         self.collection.add(
-            ids=[feature.url],
+            ids=[feature.link],
             embeddings=[feature.features],
         )
     
-    def find_relevant_videos(self, search_feature: Feature, top_k: int = 100) -> list[str]:
+    def search_relevant_videos(self, search_feature: Feature, top_k: int = 100) -> list[str]:
         results = self.collection.query(
             query_embeddings=search_feature.features,
             n_results=top_k
         )
         return results['ids'][0]
 
-    def add_search_suggestion(self, suggestion_query: str) -> None:
+    def add_text_search_suggestion(self, suggestion_query: str) -> None:
         subsearches = suggestion_query.split()
         self.desc_collection.add(
             documents=[suggestion_query] + subsearches,
             ids=[str(hash(suggestion_query))]
         )
 
-    def get_suggestions(self, search_query: str, top_k: int = 20) -> list[str]:
+    def get_text_search_suggestions(self, search_query: str, top_k: int = 20) -> list[str]:
         results = self.desc_collection.query(
             query_texts=[search_query],
             n_results=top_k,

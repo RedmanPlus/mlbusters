@@ -5,47 +5,40 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
 from deps import Model, Processor, lifespan
-from keymap import create_thumbnails_for_video_message
+from frame_video import create_key_frames_for_video
 
 app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
-    text: Optional[str] = None
-    video_url: Optional[str] = None
+    link: Optional[str] = None
+    description: Optional[str] = None
 
 @app.get("/")
 async def root():
     return JSONResponse(content={"ok": True})
 
-
 @app.post("/encode")
 async def encode(request: EncodeRequest, processor: Processor, model: Model):
-    text = request.text
-    video_url = request.video_url
-
-    features = None
-    features = None
-
-    if all((text, video_url)):
-        raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, not both.") 
-    if not any((text, video_url)):
-        raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, or both.")
-
-    if text:
-        inputs = processor(text=[text], return_tensors="pt", padding=True)
+    if not any((request.description, request.link)):
+        raise HTTPException(
+            status_code=400, detail="Please provide either 'description' as string or 'link' as video URL, or both."
+        )
+    
+    text_features, image_features = None, None
+    
+    if request.description:    
+        text_inputs = processor(text=[request.description], return_tensors="pt", padding=True)
         with torch.no_grad():
-            features = model.get_text_features(**inputs)
-            features /= features.norm(dim=-1, keepdim=True)
-
-    if video_url:
-        images = create_thumbnails_for_video_message(video_url)
-
+            text_features = model.get_text_features(**text_inputs)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
+    
+    if request.link:
+        images = create_key_frames_for_video(request.link)
         image_inputs = []
         for image in images:
             image = Image.open(image.file)
             image_input = processor(images=image, return_tensors="pt")
             image_inputs.append(image_input)
-
         with torch.no_grad():
             image_features = model.get_image_features(**image_inputs[0])
             for image_input in image_inputs[1:]:
@@ -55,4 +48,15 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             features = torch.mean(image_features, dim=0)
             features /= features.norm(dim=-1, keepdim=True)
 
-    return {"features": features.tolist()}
+    if request.description and request.link:
+        text_weight = 1.0
+        video_weight = 2.0  # Giving more importance to video
+        # Merged weighted vectors of text and video didn't work so well, leave off for now
+        unified_features = (text_features * text_weight + image_features * video_weight) / (text_weight + video_weight)
+        return {"features": image_features.tolist()[0]}
+
+    elif request.description:
+        return {"features": text_features.tolist()[0]}
+
+    elif request.link:
+        return {"features": image_features.tolist()[0]}
