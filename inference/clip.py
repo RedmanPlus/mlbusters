@@ -24,7 +24,6 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
     if not any((text, video_url)):
         raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, or both.")
     text_features, image_features = None, None
-    video_weight = 2.0
     if text:
         text_inputs = processor(text=[text], return_tensors="pt", padding=True)
         with torch.no_grad():
@@ -41,9 +40,10 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             image_features_list = [model.get_image_features(**image_input) for image_input in image_inputs]
             image_features = torch.mean(torch.stack(image_features_list), dim=0)
             image_features /= image_features.norm(dim=-1, keepdim=True)
-            image_features *= video_weight
     if text and video_url:
-        unified_features = torch.cat((text_features, image_features), dim=-1)
+        text_weight = 1.0
+        video_weight = 2.0  # Giving more importance to video
+        unified_features = (text_features * text_weight + image_features * video_weight) / (text_weight + video_weight)
         return {"features": unified_features.tolist()[0]}
     elif text:
         return {"features": text_features.tolist()[0]}
