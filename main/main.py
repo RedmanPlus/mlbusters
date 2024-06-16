@@ -3,27 +3,29 @@ from fastapi_cache.decorator import cache
 
 from deps import Opus, Clip, Chroma, lifespan
 from settings import Settings
-from models import EncodeRequest, SearchRequest
+from models import Video, Text
 
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/encode")
-async def encode(request: EncodeRequest, clip: Clip, chroma: Chroma):
+@app.post("/index")
+async def encode(request: Video, clip: Clip, chroma: Chroma):
+    """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
     chroma.add_feature(feature=feature)
-    return {"status": "ok", "features": feature.features}
+    return request.model_dump(mode="dict")
 
-@app.get("/find")
+@app.get("/search")
 @cache(expire=Settings.cache_lifetime)
 async def find_similar(
         clip: Clip,
         chroma: Chroma,
         translator: Opus,
-        params: SearchRequest = Depends()
+        params: Text = Depends()
 ) -> dict[str, list[str]]:
+    """Ищет наиболее релевантные видео под запрос"""
     search_vector = await clip.get_text_embedding(
-        EncodeRequest(
-            text=translator(params.search)
+        Video(
+            description=translator(params.text)
         )
     )
-    return {"results": chroma.find_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
+    return {"results": chroma.search_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}

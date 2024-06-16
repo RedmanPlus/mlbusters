@@ -5,13 +5,13 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
 from deps import Model, Processor, lifespan
-from frame_video import create_thumbnails_for_video
+from frame_video import create_key_frames_for_video
 
 app = FastAPI(lifespan=lifespan)
 
 class EncodeRequest(BaseModel):
-    text: Optional[str] = None
-    video_url: Optional[str] = None
+    link: Optional[str] = None
+    description: Optional[str] = None
 
 @app.get("/")
 async def root():
@@ -19,18 +19,21 @@ async def root():
 
 @app.post("/encode")
 async def encode(request: EncodeRequest, processor: Processor, model: Model):
-    text = request.text
-    video_url = request.video_url
-    if not any((text, video_url)):
-        raise HTTPException(status_code=400, detail="Please provide either 'text' as string or 'video_url' as video URL, or both.")
+    if not any((request.description, request.link)):
+        raise HTTPException(
+            status_code=400, detail="Please provide either 'description' as string or 'link' as video URL, or both."
+        )
+    
     text_features, image_features = None, None
-    if text:
-        text_inputs = processor(text=[text], return_tensors="pt", padding=True)
+    
+    if request.description:    
+        text_inputs = processor(text=[request.description], return_tensors="pt", padding=True)
         with torch.no_grad():
             text_features = model.get_text_features(**text_inputs)
             text_features /= text_features.norm(dim=-1, keepdim=True)
-    if video_url:
-        images = create_thumbnails_for_video(video_url)
+    
+    if request.link:
+        images = create_key_frames_for_video(request.link)
         image_inputs = []
         for image in images:
             image = Image.open(image.file)
@@ -40,12 +43,15 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             image_features_list = [model.get_image_features(**image_input) for image_input in image_inputs]
             image_features = torch.mean(torch.stack(image_features_list), dim=0)
             image_features /= image_features.norm(dim=-1, keepdim=True)
-    if text and video_url:
+
+    if request.description and request.link:
         text_weight = 1.0
         video_weight = 2.0  # Giving more importance to video
         unified_features = (text_features * text_weight + image_features * video_weight) / (text_weight + video_weight)
         return {"features": unified_features.tolist()[0]}
-    elif text:
+
+    elif request.description:
         return {"features": text_features.tolist()[0]}
-    elif video_url:
+
+    elif request.link:
         return {"features": image_features.tolist()[0]}

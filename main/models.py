@@ -1,14 +1,19 @@
 from typing import Optional
 from pydantic import BaseModel
 
-class EncodeRequest(BaseModel):
-    text: Optional[str] = None
-    video_url: Optional[str] = None
+class Video(BaseModel):
+    """Represents a Link to Video with text description 
+    to be vectorized and added to index"""
+    description: Optional[str] = None
+    link: Optional[str] = None
 
-class SearchRequest(BaseModel):
-    search: str
-    return_amount: int = 20
+class Text(BaseModel):
+    """Represents a text query to search related videos"""
+    text: str
+    return_amount: int = 50
 
 class Feature(BaseModel):
-    url: Optional[str] = None
+    """Represents an Embedding of a video"""
+    link: Optional[str] = None
+    description: Optional[str] = None
     features: list[float]

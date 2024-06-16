@@ -8,16 +8,16 @@ from scenedetect import detect, ContentDetector
 
 @dataclass
 class VideoFrame:
-    video_url: str
+    video_link: str
     file: BytesIO
 
-def create_thumbnails_for_video(
-        video_url: str, 
+def create_key_frames_for_video(
+        video_link: str, 
         frame_change_threshold: float = 7.5,
         num_of_thumbnails: int = 10
     ) -> list[VideoFrame]:
     frames: list[VideoFrame] = []
-    video_data = BytesIO(requests.get(video_url).content)
+    video_data = BytesIO(requests.get(video_link).content)
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
         tmp_file.write(video_data.getvalue())
         video_path = tmp_file.name
@@ -31,13 +31,13 @@ def create_thumbnails_for_video(
         scene_start, _ = scene
         frame_data = create_frame_in_ram(video_path, scene_start.get_timecode())
         if frame_data:
-            frame: VideoFrame = VideoFrame(video_url=video_url, file=frame_data)
+            frame: VideoFrame = VideoFrame(video_link=video_link, file=frame_data)
             frames.append(frame)
     os.unlink(video_path)
     # Sometimes threshold is too high to find at least 1 key frame.
     if not frames and frame_change_threshold > 2.6:
-        return create_thumbnails_for_video(
-            video_url=video_url,
+        return create_key_frames_for_video(
+            video_link=video_link,
             frame_change_threshold=frame_change_threshold - 2.5,
             num_of_thumbnails=num_of_thumbnails
         )
