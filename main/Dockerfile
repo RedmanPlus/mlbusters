@@ -31,7 +31,7 @@ RUN wget https://ipfs.io/ipfs/QmbRSZvfJV6zN12zzWhecphcvE9ZBeQdAJGQ9c9ttJXzcg/ru.
     tar xzf ru.tar.gz && \
     ls -al && sleep 5 && \
     cd /usr/local/lib && ls -al && sleep 5 && \
-    mv ru /usr/local/lib/python3.11/site-packages/autocorrect/data/
+    mv word_count.json /usr/local/lib/python3.11/site-packages/autocorrect/data/
 
 COPY ./ /app/
 
