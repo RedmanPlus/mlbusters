@@ -2,32 +2,34 @@ from fastapi import FastAPI, Depends
 from fastapi_cache.decorator import cache
 
 from deps import Opus, Clip, Chroma, Speller, lifespan
-from main.settings import Settings
-from models import EncodeRequest, SearchRequest, SuggestRequest
+from settings import Settings
+from models import Video, Text, SuggestRequest
 
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/encode")
-async def encode(request: EncodeRequest, clip: Clip, chroma: Chroma):
+@app.post("/index")
+async def add_video_to_index(request: Video, clip: Clip, chroma: Chroma) -> Video:
+    """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
     if request.text is not None:
-        chroma.add_search_suggestion(suggestion_query=request.text)
+        chroma.add_text_search_suggestion(suggestion_query=request.text)
     chroma.add_feature(feature=feature)
-    return {"status": "ok", "features": feature.features}
+    return request.model_dump(mode="dict")
 
-@app.get("/find")
+@app.get("/search")
 @cache(expire=Settings.cache_lifetime)
-async def find_similar(
+async def search_for_related_videos(
         clip: Clip,
         chroma: Chroma,
         translator: Opus,
         speller: Speller,
-        params: SearchRequest = Depends()
+        params: Text = Depends()
 ) -> dict[str, list[str]]:
+    """Ищет наиболее релевантные видео под запрос"""
     spelled_search = speller(params.search)
     translated_search = translator(spelled_search)
     search_vector = await clip.get_text_embedding(
-        EncodeRequest(
+        Video(
             text=translated_search
         )
     )
@@ -37,7 +39,8 @@ async def find_similar(
 @app.get("/suggest")
 @cache(expire=Settings.cache_lifetime)
 async def suggest_search_prompt(
-        request: SuggestRequest,
+        suggest_request: SuggestRequest,
         chroma: Chroma,
 ) -> dict[str, list[str]]:
-    return {"results": chroma.get_suggestions(search_query=request.search_prompt)}
+    """Предлагает подсказки по текстовому запросу"""
+    return {"results": chroma.get_text_search_suggestions(search_query=suggest_request.search_prompt)}
