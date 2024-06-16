@@ -51,8 +51,9 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
     if request.description and request.link:
         text_weight = 1.0
         video_weight = 2.0  # Giving more importance to video
+        # Merged weighted vectors of text and video didn't work so well, leave off for now
         unified_features = (text_features * text_weight + image_features * video_weight) / (text_weight + video_weight)
-        return {"features": unified_features.tolist()[0]}
+        return {"features": image_features.tolist()[0]}
 
     elif request.description:
         return {"features": text_features.tolist()[0]}
