@@ -40,9 +40,13 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             image_input = processor(images=image, return_tensors="pt")
             image_inputs.append(image_input)
         with torch.no_grad():
-            image_features_list = [model.get_image_features(**image_input) for image_input in image_inputs]
-            image_features = torch.mean(torch.stack(image_features_list), dim=0)
-            image_features /= image_features.norm(dim=-1, keepdim=True)
+            image_features = model.get_image_features(**image_inputs[0])
+            for image_input in image_inputs[1:]:
+                image_feature = model.get_image_features(**image_input)
+                image_features = torch.cat((image_features, image_feature), dim=0)
+
+            features = torch.mean(image_features, dim=0)
+            features /= features.norm(dim=-1, keepdim=True)
 
     if request.description and request.link:
         text_weight = 1.0
