@@ -29,8 +29,6 @@ RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 
 RUN wget https://ipfs.io/ipfs/QmbRSZvfJV6zN12zzWhecphcvE9ZBeQdAJGQ9c9ttJXzcg/ru.tar.gz && \
     tar xzf ru.tar.gz && \
-    ls -al && sleep 5 && \
-    cd /usr/local/lib && ls -al && sleep 5 && \
     mv word_count.json /usr/local/lib/python3.11/site-packages/autocorrect/data/
 
 COPY ./ /app/
