@@ -8,7 +8,7 @@ from models import Video, Text
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/index")
-async def encode(request: Video, clip: Clip, chroma: Chroma):
+async def add_video_embedding_to_index(request: Video, clip: Clip, chroma: Chroma):
     """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
     chroma.add_feature(feature=feature)
@@ -16,7 +16,7 @@ async def encode(request: Video, clip: Clip, chroma: Chroma):
 
 @app.get("/search")
 @cache(expire=Settings.cache_lifetime)
-async def find_similar(
+async def search_for_related_videos(
         clip: Clip,
         chroma: Chroma,
         translator: Opus,
