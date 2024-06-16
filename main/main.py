@@ -8,7 +8,7 @@ from models import Video, Text
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/index")
-async def add_video_embedding_to_index(request: Video, clip: Clip, chroma: Chroma):
+async def add_video_to_index(request: Video, clip: Clip, chroma: Chroma):
     """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
     chroma.add_feature(feature=feature)
