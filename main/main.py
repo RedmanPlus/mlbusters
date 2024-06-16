@@ -11,8 +11,8 @@ app = FastAPI(lifespan=lifespan)
 async def add_video_to_index(request: Video, clip: Clip, chroma: Chroma) -> Video:
     """Добавляет новое видео в хранилище - индекс"""
     feature = await clip.get_video_embedding(request)
-    if request.text is not None:
-        chroma.add_text_search_suggestion(suggestion_query=request.text)
+    if request.description is not None:
+        chroma.add_text_search_suggestion(suggestion_query=request.description)
     chroma.add_feature(feature=feature)
     return request.model_dump(mode="dict")
 
@@ -33,7 +33,7 @@ async def search_for_related_videos(
             text=translated_search
         )
     )
-    return {"results": chroma.find_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
+    return {"results": chroma.search_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
 
 
 @app.get("/suggest")
