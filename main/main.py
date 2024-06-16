@@ -30,7 +30,7 @@ async def search_for_related_videos(
     translated_search = translator(spelled_search)
     search_vector = await clip.get_text_embedding(
         Video(
-            text=translated_search
+            description=translated_search
         )
     )
     return {"results": chroma.search_relevant_videos(search_feature=search_vector, top_k=params.return_amount)}
