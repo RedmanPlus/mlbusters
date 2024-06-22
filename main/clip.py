@@ -9,7 +9,7 @@ class CLIPService:
     
     async def get_video_embeddings(self, request: Video) -> list[Feature]:
         async with aiohttp.ClientSession().post(
-            url=f"{self.encode_clip_url}/encode", 
+            url=f"{self.encode_clip_url}encode", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
@@ -29,7 +29,7 @@ class CLIPService:
             request: SearchFeature, 
     ) -> Feature:
         async with aiohttp.ClientSession().post(
-            f"{self.search_clip_url}/encode-search", 
+            f"{self.search_clip_url}encode-search", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
