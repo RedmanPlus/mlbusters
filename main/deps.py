@@ -14,9 +14,7 @@ from settings import Settings
 
 
 def get_clip_service() -> CLIPService:
-    return CLIPService(
-        url=Settings.clip_url
-    )
+    return CLIPService()
 
 def get_chroma_storage() -> ChromaStorage:
     return ChromaStorage()

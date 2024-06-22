@@ -17,7 +17,7 @@ services:
       - "11211:11211"
     restart: always
 
-  inference:
+  encode-inference: &inference
     build:
       context: ./inference
       dockerfile: Dockerfile
@@ -31,6 +31,9 @@ services:
     ports:
       - "8040:8040"
 
+  search-inference:
+    <<: *inference
+
   main:
     build:
       context: ./main
@@ -42,7 +45,8 @@ services:
       - main-model-data:/app/model_data
     depends_on:
       - db
-      - inference
+      - encode-inference
+      - search-inference
       - cache
     env_file:
       - main/.env.dist

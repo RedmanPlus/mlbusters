@@ -1,13 +1,15 @@
 import aiohttp
+from main.settings import Settings
 from models import SearchFeature, Video, Feature
 
 class CLIPService:
-    def __init__(self, url: str) -> None:
-        self.clip_url = url
+    def __init__(self) -> None:
+        self.encode_clip_url = Settings.encode_clip_url
+        self.search_clip_url = Settings.search_clip_url
     
     async def get_video_embeddings(self, request: Video) -> list[Feature]:
         async with aiohttp.ClientSession().post(
-            url=f"{self.clip_url}/encode", 
+            url=f"{self.encode_clip_url}/encode", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
@@ -27,7 +29,7 @@ class CLIPService:
             request: SearchFeature, 
     ) -> Feature:
         async with aiohttp.ClientSession().post(
-            f"{self.clip_url}/encode-search", 
+            f"{self.search_clip_url}/encode-search", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
