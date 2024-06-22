@@ -1,5 +1,5 @@
 import aiohttp
-from main.settings import Settings
+from settings import Settings
 from models import SearchFeature, Video, Feature
 
 class CLIPService:

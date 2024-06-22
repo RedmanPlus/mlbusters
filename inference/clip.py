@@ -5,7 +5,7 @@ from PIL import Image
 import torch
 from transformers import CLIPModel, CLIPProcessor
 
-from inference.frame_video import VideoFrame, create_key_frames_for_video
+from frame_video import VideoFrame, create_key_frames_for_video
 
 
 @dataclass

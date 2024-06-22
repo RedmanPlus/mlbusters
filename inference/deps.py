@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Request
 from transformers import CLIPModel, CLIPProcessor
 
-from inference.whisper import WhisperService
+from whisper import WhisperService
 from settings import Settings
 
 

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from inference.deps import Model, Processor, Whisper, lifespan
-from inference.clip import CLIP
-from inference.models import EncodeRequest, EncodeSearchRequest
+from deps import Model, Processor, Whisper, lifespan
+from clip import CLIP
+from models import EncodeRequest, EncodeSearchRequest
 
 app = FastAPI(lifespan=lifespan)
 

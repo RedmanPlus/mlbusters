@@ -4,7 +4,7 @@ from io import BytesIO
 import requests
 from whisper_cpp_python import Whisper
 
-from inference.settings import Settings
+from settings import Settings
 
 
 @dataclass
