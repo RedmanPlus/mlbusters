@@ -2,7 +2,6 @@ version: "3.10"
 
 services:
   db:
-    container_name: chroma_db
     image: chromadb/chroma:latest
     volumes:
       - chroma-data:/chroma/chroma
@@ -11,7 +10,6 @@ services:
       - "8000:8000"
  
   cache:
-    container_name: request_cache
     image: memcached:latest
     ports:
       - "11211:11211"
@@ -21,7 +19,6 @@ services:
     build:
       context: ./inference
       dockerfile: Dockerfile
-    container_name: inference
     command: uvicorn main:app --host "0.0.0.0" --port 8040
     restart: unless-stopped
     volumes:
@@ -38,7 +35,6 @@ services:
     build:
       context: ./main
       dockerfile: Dockerfile
-    container_name: main_gateway
     command: uvicorn main:app --host "0.0.0.0" --port 80
     restart: unless-stopped
     volumes:
