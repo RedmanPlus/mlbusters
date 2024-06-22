@@ -15,8 +15,8 @@ class WhisperService:
     def __call__(self, link: str) -> str:
         
         video_data = BytesIO(requests.get(link).content)
-        with tempfile.NamedTemporaryFile(delete_on_close=False) as tp:
+        with tempfile.NamedTemporaryFile(delete=False) as tp:
             tp.write(video_data.read())
             tp.close()
-            data = self._service.transcribe(open(tp.name))
+            data = self._service.translate(open(tp.name))
         return data["text"]
