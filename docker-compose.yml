@@ -30,6 +30,8 @@ services:
 
   search:
     <<: *inference
+    ports:
+      - "8050:8040"
 
   main:
     build:
