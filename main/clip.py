@@ -1,26 +1,34 @@
 import aiohttp
-from models import Video, Feature
+from models import SearchFeature, Video, Feature
 
 class CLIPService:
     def __init__(self, url: str) -> None:
         self.clip_url = url
     
-    async def get_video_embedding(self, request: Video) -> Feature:
+    async def get_video_embeddings(self, request: Video) -> list[Feature]:
         async with aiohttp.ClientSession().post(
-            url=self.clip_url, 
+            url=f"{self.clip_url}/encode", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
 
-        return Feature(features=features['features'], link=request.link, description=request.description)
+        return [
+            Feature(
+                features=v,
+                link=request.link,
+                description=request.description,
+                feature_type=k
+            )
+            for k, v in features.items()
+        ]
      
     async def get_text_embedding(
             self, 
-            request: Video, 
+            request: SearchFeature, 
     ) -> Feature:
         async with aiohttp.ClientSession().post(
-            self.clip_url, 
+            f"{self.clip_url}/encode-search", 
             json=request.model_dump(mode="json")
         ) as resp:
             features = await resp.json()
-        return Feature(features=features['features'])
+        return Feature(features=features['features'], feature_type="description")

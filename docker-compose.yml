@@ -22,7 +22,7 @@ services:
       context: ./inference
       dockerfile: Dockerfile
     container_name: inference
-    command: uvicorn clip:app --host "0.0.0.0" --port 8040
+    command: uvicorn main:app --host "0.0.0.0" --port 8040
     restart: unless-stopped
     volumes:
       - inference-model-data:/app/model_data

@@ -1,3 +1,4 @@
+from uuid import uuid4
 import chromadb
 from chromadb.server import Settings as ChromaSettings
 from models import Feature
@@ -25,8 +26,10 @@ class ChromaStorage:
 
     def add_feature(self, feature: Feature) -> None:
         self.collection.add(
-            ids=[feature.link],
+            ids=[str(uuid4())],
             embeddings=[feature.features],
+            uris=[feature.link],
+            metadatas=[{"feature_type": feature.feature_type}]
         )
     
     def search_relevant_videos(self, search_feature: Feature, top_k: int = 100) -> list[str]:
@@ -34,7 +37,7 @@ class ChromaStorage:
             query_embeddings=search_feature.features,
             n_results=top_k
         )
-        return results['ids'][0]
+        return results['uris'][0]
 
     def add_text_search_suggestion(self, suggestion_query: str) -> None:
         subsearches = suggestion_query.split()

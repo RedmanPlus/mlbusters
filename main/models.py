@@ -1,16 +1,19 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel
 
 class Video(BaseModel):
     """Represents a Link to Video with text description 
     to be vectorized and added to index"""
-    description: Optional[str] = None
-    link: Optional[str] = None
+    link: str
+    description: str | None = None
 
 class Text(BaseModel):
     """Represents a text query to search related videos"""
     text: str
     return_amount: int = 50
+
+class SearchFeature(BaseModel):
+    query: str
 
 class SuggestRequest(BaseModel):
     """Represents a text query to suggest related completions"""
@@ -21,3 +24,4 @@ class Feature(BaseModel):
     link: Optional[str] = None
     description: Optional[str] = None
     features: list[float]
+    feature_type: Literal["description"] | Literal["video"] | Literal["audio"]
