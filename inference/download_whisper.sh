@@ -1,6 +1,6 @@
-#!usr/bin/bash
+#!/bin/bash
 
-if ! test /app/model_data/ggml-large-v3.bin; then
+if [  ! -f /app/model_data/ggml-large-v3.bin ]; then
     mkdir /app/model_data
     git clone https://github.com/ggerganov/whisper.cpp.git
     cd whisper.cpp
