@@ -35,11 +35,13 @@ class WhisperService:
     def __call__(self, link: str) -> str:
         self._logger.info("Converting video file to WAV")
         video_data = BytesIO(requests.get(link).content)
-        with tempfile.NamedTemporaryFile() as video:
+        with tempfile.NamedTemporaryFile(delete=False) as video:
             video.write(video_data.read())
+            video.close()
             audio_data = self._get_audio_in_ram(video.name)
+        os.unlink(video.name)
         self._logger.info("Processing WAV file by whisper")
-        with tempfile.NamedTemporaryFile(delete=False) as audio:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as audio:
             audio.write(audio_data.read())
             audio.close()
             data = self._service.translate(
