@@ -43,7 +43,7 @@ class ChromaStorage:
         subsearches = suggestion_query.split()
         self.desc_collection.add(
             documents=[suggestion_query] + subsearches,
-            ids=[str(hash(query)) for query in [suggestion_query] + subsearches]
+            ids=[str(uuid4()) for _ in [suggestion_query] + subsearches]
         )
 
     def get_text_search_suggestions(self, search_query: str, top_k: int = 20) -> list[str]:
