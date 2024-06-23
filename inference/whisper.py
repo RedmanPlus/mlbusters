@@ -9,7 +9,7 @@ import requests
 from transformers import Pipeline, pipeline
 from whisper_cpp_python import Whisper
 
-from inference.frame_video import get_audio_in_ram
+from frame_video import get_audio_in_ram
 from settings import Settings
 
 
