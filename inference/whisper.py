@@ -10,7 +10,12 @@ from settings import Settings
 
 @dataclass
 class WhisperService:
-    _service: Whisper = field(default_factory=lambda: Whisper(model_path=Settings.whisper_path))
+    _service: Whisper = field(
+        default_factory=lambda: Whisper(
+            model_path=Settings.whisper_path,
+            n_threads=4
+        )
+    )
 
     def __call__(self, link: str) -> str:
         
