@@ -19,19 +19,19 @@ services:
     build:
       context: ./inference
       dockerfile: Dockerfile
-    command: uvicorn main:app --host "0.0.0.0" --port 8040 --log-config=log_conf.yaml
+    command: uvicorn main:app --host "0.0.0.0" --port 80 --log-config=log_conf.yaml
     restart: unless-stopped
     volumes:
       - inference-model-data:/app/model_data
     env_file:
       - inference/.env.dist
     ports:
-      - "8040:8040"
+      - "8040:80"
 
   search:
     <<: *inference
     ports:
-      - "8050:8040"
+      - "8050:80"
 
   main:
     build:
