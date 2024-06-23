@@ -18,5 +18,7 @@ class WhisperService:
         with tempfile.NamedTemporaryFile(delete=False) as tp:
             tp.write(video_data.read())
             tp.close()
-            data = self._service.translate(tp.name)
+            data = self._service.translate(
+                tp.name, prompt=""
+            )
         return data["text"]

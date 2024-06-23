@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 from typing import Callable, Literal
 
 from PIL import Image
@@ -12,14 +13,17 @@ from frame_video import VideoFrame, create_key_frames_for_video
 class CLIP:
     processor: CLIPProcessor
     model: CLIPModel
+    logger: Logger
 
     _create_key_frames_for_video: Callable[[str], list[VideoFrame]] = create_key_frames_for_video
 
     def __call__(self, encode_source: str, encode_type: Literal["text"] | Literal["video"]) -> list[float]:
         if encode_type == "text":
+            self.logger.info("Processing text input: %s, input length: %s", encode_source, len(encode_source))
             return self._encode_text(encode_source)
 
         if encode_type == "video":
+            self.logger.info("Processing video input: %s", encode_source)
             return self._encode_video(encode_source)
 
     def _encode_text(self, description: str) -> list[float]:
