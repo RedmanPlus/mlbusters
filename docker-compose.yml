@@ -15,7 +15,7 @@ services:
       - "11211:11211"
     restart: always
 
-  encode: &inference
+  encode:
     build:
       context: ./inference
       dockerfile: Dockerfile
@@ -29,7 +29,15 @@ services:
       - "8040:80"
 
   search:
-    <<: *inference
+    build:
+      context: ./inference
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host "0.0.0.0" --port 80 --log-config=log_conf.yaml
+    restart: unless-stopped
+    volumes:
+      - inference-model-data:/app/model_data
+    env_file:
+      - inference/.env.dist
     ports:
       - "8050:80"
 
