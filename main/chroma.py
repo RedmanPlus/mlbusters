@@ -28,7 +28,7 @@ class ChromaStorage:
         self.collection.add(
             ids=[str(uuid4())],
             embeddings=[feature.features],
-            uris=[feature.link],
+            documents=[feature.link],
             metadatas=[{"feature_type": feature.feature_type}]
         )
     
@@ -37,7 +37,7 @@ class ChromaStorage:
             query_embeddings=search_feature.features,
             n_results=top_k
         )
-        return results['uris'][0]
+        return results['documents'][0]
 
     def add_text_search_suggestion(self, suggestion_query: str) -> None:
         subsearches = suggestion_query.split()
