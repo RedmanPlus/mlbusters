@@ -52,7 +52,7 @@ class CLIP:
             features = torch.mean(image_features, dim=0)
             features /= features.norm(dim=-1, keepdim=True)
 
-        result = features.tolist()[0]
+        result = features.tolist()
         self.logger.info("Processed result vector - %s", result)
         return result
 
