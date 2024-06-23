@@ -27,6 +27,9 @@ environs = "^11.0.0"
 fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
 aiomcache = "^0.8.2"
 autocorrect = "^2.6.1"
+whisper-cpp-python = "^0.2.0"
+faster-whisper = "^1.0.2"
+sentencepiece = "^0.2.0"
 
 
 [build-system]

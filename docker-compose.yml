@@ -2,7 +2,6 @@ version: "3.10"
 
 services:
   db:
-    container_name: chroma_db
     image: chromadb/chroma:latest
     volumes:
       - chroma-data:/chroma/chroma
@@ -11,18 +10,16 @@ services:
       - "8000:8000"
  
   cache:
-    container_name: request_cache
     image: memcached:latest
     ports:
       - "11211:11211"
     restart: always
 
-  inference:
+  encode:
     build:
       context: ./inference
       dockerfile: Dockerfile
-    container_name: inference
-    command: uvicorn clip:app --host "0.0.0.0" --port 8040
+    command: uvicorn main:app --host "0.0.0.0" --port 8040 --log-config=log_conf.yaml
     restart: unless-stopped
     volumes:
       - inference-model-data:/app/model_data
@@ -31,18 +28,31 @@ services:
     ports:
       - "8040:8040"
 
+  search:
+    build:
+      context: ./inference
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host "0.0.0.0" --port 8050 --log-config=log_conf.yaml
+    restart: unless-stopped
+    volumes:
+      - inference-model-data:/app/model_data
+    env_file:
+      - inference/.env.dist
+    ports:
+      - "8050:8050"
+
   main:
     build:
       context: ./main
       dockerfile: Dockerfile
-    container_name: main_gateway
     command: uvicorn main:app --host "0.0.0.0" --port 80
     restart: unless-stopped
     volumes:
       - main-model-data:/app/model_data
     depends_on:
       - db
-      - inference
+      - encode
+      - search
       - cache
     env_file:
       - main/.env.dist
