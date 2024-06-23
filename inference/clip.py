@@ -1,21 +1,17 @@
 from dataclasses import dataclass
 from logging import Logger
-from typing import Callable, Literal
+from typing import Literal
 
 from PIL import Image
 import torch
 from transformers import CLIPModel, CLIPProcessor
-
-from frame_video import VideoFrame, create_key_frames_for_video
-
+from frame_video import FrameExtractor
 
 @dataclass
 class CLIP:
     processor: CLIPProcessor
     model: CLIPModel
     logger: Logger
-
-    _create_key_frames_for_video: Callable[[str], list[VideoFrame]] = create_key_frames_for_video
 
     def __call__(self, encode_source: str, encode_type: Literal["text"] | Literal["video"]) -> list[float]:
         if encode_type == "text":
@@ -37,7 +33,7 @@ class CLIP:
         return result
 
     def _encode_video(self, link: str) -> list[float]:
-        images = self._create_key_frames_for_video(link)
+        images = FrameExtractor().extract_key_frames(video_link=link)
         image_inputs = []
         for image in images:
             image = Image.open(image.file)
@@ -55,4 +51,3 @@ class CLIP:
         result = features.tolist()
         self.logger.info("Processed result vector - %s", result)
         return result
-
