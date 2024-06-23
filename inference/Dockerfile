@@ -14,6 +14,3 @@ COPY requirements.txt /app/
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 
 COPY ./ /app/
-
-EXPOSE 8040
-CMD uvicorn main:app --port 80 --log-config=log_conf.yaml
