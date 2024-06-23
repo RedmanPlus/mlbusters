@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from io import BytesIO
+import logging
 import tempfile
 import os
 from typing import Callable
@@ -26,15 +27,18 @@ class WhisperService:
             model=Settings.summarization_model
         )
     )
+    _logger: logging.Logger = field(
+        default_factory=lambda: logging.getLogger(__name__)
+    )
     _get_audio_in_ram: Callable[[str], BytesIO] = get_audio_in_ram
 
     def __call__(self, link: str) -> str:
-        
+        self._logger.info("Converting video file to WAV")
         video_data = BytesIO(requests.get(link).content)
         with tempfile.NamedTemporaryFile() as video:
             video.write(video_data.read())
             audio_data = self._get_audio_in_ram(video.name)
-
+        self._logger.info("Processing WAV file by whisper")
         with tempfile.NamedTemporaryFile(delete=False) as audio:
             audio.write(audio_data.read())
             audio.close()
@@ -42,6 +46,9 @@ class WhisperService:
                 audio.name, prompt=""
             )
         os.unlink(audio.name)
+        self._logger.info("summarizing transcript into 77 CLIP tokens")
         text = data["text"]
         summary = self._summary_pipeline(text, max_length=77)
-        return summary[0]["summary_text"]
+        result: str = summary[0]["summary_text"]  # type: ignore
+        self._logger.info("Processed video file into text description: %s, total length: %s", result, len(result))
+        return result
