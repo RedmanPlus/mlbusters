@@ -32,7 +32,9 @@ class CLIP:
             text_features = self.model.get_text_features(**text_inputs)
             text_features /= text_features.norm(dim=-1, keepdim=True)
 
-        return text_features.tolist()[0]
+        result = text_features.tolist()[0]
+        self.logger.info("Processed result vector - %s", result)
+        return result
 
     def _encode_video(self, link: str) -> list[float]:
         images = self._create_key_frames_for_video(link)
@@ -50,4 +52,7 @@ class CLIP:
             features = torch.mean(image_features, dim=0)
             features /= features.norm(dim=-1, keepdim=True)
 
-        return features.tolist()[0]
+        result = features.tolist()[0]
+        self.logger.info("Processed result vector - %s", result)
+        return result
+
