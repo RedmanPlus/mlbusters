@@ -33,21 +33,24 @@ class WhisperService:
     _get_audio_in_ram: Callable[[str], BytesIO] = get_audio_in_ram
 
     def __call__(self, link: str) -> str:
-        self._logger.info("Converting video file to WAV")
+        self._logger.info("Converting video file to transcript")
         video_data = BytesIO(requests.get(link).content)
         with tempfile.NamedTemporaryFile(delete=False) as video:
             video.write(video_data.read())
             video.close()
-            audio_data = self._get_audio_in_ram(video.name)
-        os.unlink(video.name)
-        self._logger.info("Processing WAV file by whisper")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as audio:
-            audio.write(audio_data.read())
-            audio.close()
             data = self._service.translate(
-                audio.name, prompt=""
+                video.name, prompt=""
             )
-        os.unlink(audio.name)
+        #    audio_data = self._get_audio_in_ram(video.name)
+        os.unlink(video.name)
+        #self._logger.info("Processing WAV file by whisper")
+        #with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as audio:
+        #    audio.write(audio_data.read())
+        #    audio.close()
+        #    data = self._service.translate(
+                #        audio.name, prompt=""
+                #    )
+        #os.unlink(audio.name)
         self._logger.info("summarizing transcript into 77 CLIP tokens")
         text = data["text"]
         summary = self._summary_pipeline(text, max_length=77)
