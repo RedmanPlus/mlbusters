@@ -6,4 +6,5 @@ env = Env()
 
 class Settings:
     clip_model: str = env.str("CLIP_MODEL")
+    summarization_model: str = env.str("SUMMARIZATION_MODEL")
     whisper_path: str = env.str("WHISPER_PATH")
