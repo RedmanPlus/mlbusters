@@ -22,7 +22,7 @@ class WhisperService:
         default_factory=lambda: WhisperModel(
             snapshot_download(Settings.whisper_model),
             device="cpu",
-            compute_type="float16",
+            compute_type="int8",
             cpu_threads=8,
             num_workers=4,
         )
