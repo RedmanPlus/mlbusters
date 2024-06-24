@@ -26,7 +26,8 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model, key
     
     text_features, image_features = None, None
     
-    if request.description:    
+    if request.description:
+        request.description = request.description[:65]  # Meet CLIP character limit
         text_inputs = processor(text=[request.description], return_tensors="pt", padding=True)
         with torch.no_grad():
             text_features = model.get_text_features(**text_inputs)
