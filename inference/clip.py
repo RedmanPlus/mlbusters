@@ -27,6 +27,7 @@ class CLIP:
             return self._encode_video(encode_source)
 
     def _encode_text(self, description: str) -> list[float]:
+        description = description[:65]  # meet the processor max length
         text_inputs = self.processor(text=[description], return_tensors="pt", padding=True)
         with torch.no_grad():
             text_features = self.model.get_text_features(**text_inputs)

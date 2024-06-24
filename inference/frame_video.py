@@ -4,7 +4,7 @@ import tempfile
 from io import BytesIO
 from dataclasses import dataclass
 import requests
-from scenedetect import detect, ContentDetector
+from scenedetect import detect, ContentDetector, AdaptiveDetector
 
 @dataclass
 class VideoFrame:
@@ -14,6 +14,7 @@ class VideoFrame:
 def create_key_frames_for_video(
         video_link: str, 
         frame_change_threshold: float = 7.5,
+        min_scene_len: int = 10,
         num_of_thumbnails: int = 10
     ) -> list[VideoFrame]:
     frames: list[VideoFrame] = []
@@ -21,12 +22,16 @@ def create_key_frames_for_video(
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
         tmp_file.write(video_data.getvalue())
         video_path = tmp_file.name
-    scenes = detect(video_path, ContentDetector(threshold=frame_change_threshold))
+    scenes = detect(
+        video_path=video_path, 
+        detector=ContentDetector(threshold=frame_change_threshold, min_scene_len=min_scene_len)
+    )
 
-    # Gradually reduce number of key frames with a sliding window
+    # Gradually reduce number of key frames with a increasingly smaller steps
     while len(scenes) > num_of_thumbnails:
-        scenes.pop()
-        scenes.pop(0)
+        step = len(scenes) / (num_of_thumbnails - 1)
+        to_remove_indices = [int(round(i * step)) for i in range(num_of_thumbnails)]
+        scenes = [scenes[i] for i in range(len(scenes)) if i not in to_remove_indices] 
     for i, scene in enumerate(scenes):
         scene_start, _ = scene
         frame_data = create_frame_in_ram(video_path, scene_start.get_timecode())
@@ -39,6 +44,7 @@ def create_key_frames_for_video(
         return create_key_frames_for_video(
             video_link=video_link,
             frame_change_threshold=frame_change_threshold - 2.5,
+            min_scene_len=min_scene_len - 2 if min_scene_len > 2 else min_scene_len,
             num_of_thumbnails=num_of_thumbnails
         )
     return frames
