@@ -18,7 +18,7 @@ async def encode(
         request: EncodeRequest,
         processor: Processor,
         model: Model,
-        whisper: Whisper
+#         whisper: Whisper
 ):
     logger.info("Initializing CLIP module...")
     clip = CLIP(processor=processor, model=model, logger=logger)
@@ -30,11 +30,11 @@ async def encode(
     else:
         description_features = None
 
-    audio_transcription = whisper(request.link)
-    audio_features = clip(audio_transcription, encode_type="text")
+    #  audio_transcription = whisper(request.link)
+    # audio_features = clip(audio_transcription, encode_type="text")
     return {
         "video": video_features,
-        "audio": audio_features,
+    #     "audio": audio_features,
         "description": description_features
     }
 
