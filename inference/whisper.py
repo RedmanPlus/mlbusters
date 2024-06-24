@@ -1,25 +1,33 @@
 from dataclasses import dataclass, field
 from io import BytesIO
 import logging
-import tempfile
-import os
 from typing import Callable
 
 import requests
 from transformers import Pipeline, pipeline
-from whisper_cpp_python import Whisper
+from faster_whisper import WhisperModel
 
 from frame_video import get_audio_in_ram
+from translator import OpusTranslatorModel
 from settings import Settings
+
+
+model = WhisperModel
 
 
 @dataclass
 class WhisperService:
-    _service: Whisper = field(
-        default_factory=lambda: Whisper(
-            model_path=Settings.whisper_path,
-            n_threads=4
+    _whisper: WhisperModel = field(
+        default_factory=lambda: WhisperModel(
+            Settings.whisper_model,
+            device="cpu",
+            compute_type="float16",
+            cpu_threads=8,
+            num_workers=4,
         )
+    )
+    _translator: OpusTranslatorModel = field(
+        default_factory=OpusTranslatorModel
     )
     _summary_pipeline: Pipeline = field(
         default_factory=lambda: pipeline(
@@ -35,25 +43,25 @@ class WhisperService:
     def __call__(self, link: str) -> str:
         self._logger.info("Converting video file to transcript")
         video_data = BytesIO(requests.get(link).content)
-        with tempfile.NamedTemporaryFile(delete=False) as video:
-            video.write(video_data.read())
-            video.close()
-            data = self._service.translate(
-                video.name, prompt=""
+        segments, info = self._whisper.transcribe(
+            video_data,
+            language="ru",
+            beam_size=5
+        )
+        if info.language_probability < 0.5:
+            self._logger.info(
+                "Cannot properly identify speech, probability=%s, returning empty string",
+                info.language_probability
             )
-        #    audio_data = self._get_audio_in_ram(video.name)
-        os.unlink(video.name)
-        #self._logger.info("Processing WAV file by whisper")
-        #with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as audio:
-        #    audio.write(audio_data.read())
-        #    audio.close()
-        #    data = self._service.translate(
-                #        audio.name, prompt=""
-                #    )
-        #os.unlink(audio.name)
+            return ""
         self._logger.info("summarizing transcript into 77 CLIP tokens")
-        text = data["text"]
-        summary = self._summary_pipeline(text, max_length=77)
+        full_translation = ""
+        for segment in segments:
+            if segment.no_speech_prob > 0.5:
+                continue
+            translated_segment = self._translator(segment.text)
+            full_translation += " " + translated_segment
+        summary = self._summary_pipeline(full_translation, max_length=77)
         result: str = summary[0]["summary_text"]  # type: ignore
         self._logger.info("Processed video file into text description: %s, total length: %s", result, len(result))
         return result

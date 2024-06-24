@@ -5,9 +5,6 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-COPY download_whisper.sh /app/
-RUN ./download_whisper.sh
-
 RUN apt-get update && apt-get install ffmpeg -y
 
 COPY requirements.txt /app/

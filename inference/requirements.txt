@@ -9,5 +9,5 @@ pillow==10.3.0
 scenedetect==0.6.3
 opencv-python==4.10.0.82
 environs==11.0.0
-whisper-cpp-python==0.2.0
+faster-whisper==1.0.2
 PyYAML>=6.0
