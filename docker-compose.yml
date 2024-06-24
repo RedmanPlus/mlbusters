@@ -3,6 +3,7 @@ version: "3.10"
 services:
   db:
     image: chromadb/chroma:latest
+    container_name: chromadb
     volumes:
       - chroma-data:/chroma/chroma
     restart: unless-stopped
@@ -11,6 +12,7 @@ services:
  
   cache:
     image: memcached:latest
+    container_name: memcached
     ports:
       - "11211:11211"
     restart: always
@@ -19,6 +21,7 @@ services:
     build:
       context: ./inference
       dockerfile: Dockerfile
+    container_name: inference-encode
     command: uvicorn main:app --host "0.0.0.0" --port 80 --log-config=log_conf.yaml
     restart: unless-stopped
     volumes:
@@ -32,6 +35,7 @@ services:
     build:
       context: ./inference
       dockerfile: Dockerfile
+    container_name: inference-search
     command: uvicorn main:app --host "0.0.0.0" --port 80 --log-config=log_conf.yaml
     restart: unless-stopped
     volumes:
@@ -45,6 +49,7 @@ services:
     build:
       context: ./main
       dockerfile: Dockerfile
+    container_name: api-gateway
     command: uvicorn main:app --host "0.0.0.0" --port 80
     restart: unless-stopped
     volumes:
