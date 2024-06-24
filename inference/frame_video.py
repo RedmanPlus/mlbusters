@@ -57,16 +57,3 @@ def create_frame_in_ram(video_path: str, timecode: str) -> BytesIO:
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     frame_data, _ = process.communicate()
     return BytesIO(frame_data)
-
-def get_audio_in_ram(video_path: str) -> BytesIO:
-    command = [
-        "ffmpeg",
-        "-i", video_path, 
-        "-acodec", "pcm_s16le",
-        "-ac", "1",
-        "-ar", "16000", 
-        "-"
-    ]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    audio_data, _ = process.communicate()
-    return BytesIO(audio_data)
