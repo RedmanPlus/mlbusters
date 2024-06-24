@@ -3,6 +3,7 @@ from io import BytesIO
 import logging
 from typing import Callable
 
+from huggingface_hub import snapshot_download
 import requests
 from transformers import Pipeline, pipeline
 from faster_whisper import WhisperModel
@@ -19,7 +20,7 @@ model = WhisperModel
 class WhisperService:
     _whisper: WhisperModel = field(
         default_factory=lambda: WhisperModel(
-            Settings.whisper_model,
+            snapshot_download(Settings.whisper_model),
             device="cpu",
             compute_type="float16",
             cpu_threads=8,
