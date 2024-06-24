@@ -4,8 +4,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
-from deps import Model, Processor, lifespan
-from frame_video import create_key_frames_for_video
+from deps import Model, Processor, KeyFrameExtractor, lifespan
+from frame_video import FrameExtractor
 
 app = FastAPI(lifespan=lifespan)
 
@@ -18,7 +18,7 @@ async def root():
     return JSONResponse(content={"ok": True})
 
 @app.post("/encode")
-async def encode(request: EncodeRequest, processor: Processor, model: Model):
+async def encode(request: EncodeRequest, processor: Processor, model: Model, keyframe_extractor: KeyFrameExtractor):
     if not any((request.description, request.link)):
         raise HTTPException(
             status_code=400, detail="Please provide either 'description' as string or 'link' as video URL, or both."
@@ -33,7 +33,7 @@ async def encode(request: EncodeRequest, processor: Processor, model: Model):
             text_features /= text_features.norm(dim=-1, keepdim=True)
     
     if request.link:
-        images = create_key_frames_for_video(request.link)
+        images = keyframe_extractor.extract_key_frames(request.link)
         image_inputs = []
         for image in images:
             image = Image.open(image.file)
