@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from deps import Model, Processor, Whisper, lifespan
+from deps import Model, Processor, lifespan
 from clip import CLIP
 from models import EncodeRequest, EncodeSearchRequest
 
